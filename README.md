@@ -9,10 +9,10 @@ Built on [carousel_slider](pub.dev/packages/carousel_slider)
 - Centered Horizontal Scrolling Date Picker with opacity fade
 - Centered Vertical Spinner Time Picker with opacity fade
 
-## Getting started
+## Example Web Demo:
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Preview Demo:
+[https://jeffylo94.github.io/fadeable_date_time_pickers/#/](https://jeffylo94.github.io/fadeable_date_time_pickers/#/)
 
 ## Usage
 
