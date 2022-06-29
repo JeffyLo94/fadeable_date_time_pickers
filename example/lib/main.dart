@@ -35,7 +35,11 @@ class _MyHomePageState extends State<MyHomePage> {
   DateTime _dateSelection2 = DateTime.now();
   final int _maxDayRange = 5;
 
-  DateTime _timeSelection = DateTime.now();
+  // DateTime _initialTime = DateTime.now();
+  // DateTime _timeSelection = DateTime.now();
+    DateTime _initialTime = DateTime(2022, 6, 29, 13, 35);
+    DateTime _timeSelection = DateTime(2022, 6, 29, 13, 35);
+
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
                 enableDistanceFade: true,
                 maximumFadeDays: 3,
-                widgetWidth: MediaQuery.of(context).size.width*0.7,
+                widgetWidth: MediaQuery.of(context).size.width * 0.7,
                 daysInViewport: 15,
                 onDateSelected: (selectedDate) {
                   setState(() {
@@ -119,35 +123,55 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
 
               const Text('TIME PICKER'),
+              // Container(
+              //   width: MediaQuery.of(context).size.width * 0.7,
+              //   child: FadeableSpinnerTimePicker(
+              //     key: const Key('tp1'),
+              //     // initialTime: DateTime.now(),
+              //     initialTime: DateTime(2022, 6, 27, 12, 55),
+              //     enableMaxTime: true,
+              //     onTimeChanged: (dt) {
+              //       print('date changed to : $dt');
+              //       setState(() {
+              //         _timeSelection = dt;
+              //       });
+              //     },
+              //     minutesInterval: 15,
+              //     secondsInterval: 15,
+              //     itemSize: const Size(60, 40),
+              //     amPmSpacerWidget: Container(),
+              //     // unselectedItemColor: Color.fromARGB(255, 54, 54, 54),
+              //     spacerTextStyle: const TextStyle(
+              //       fontWeight: FontWeight.w400,
+              //       fontSize: 25,
+              //     ),
+              //     selectedItemColor: Colors.lightGreen,
+              //     selectedTextStyle: const TextStyle(
+              //       fontWeight: FontWeight.w400,
+              //       fontSize: 25,
+              //     ),
+              //     // spacerWidth: MediaQuery.of(context).size.width * (0.7/5),
+              //   ),
+              // ),
               Container(
                 width: MediaQuery.of(context).size.width * 0.7,
-                child: FadeableSpinnerTimePicker(
-                  key: const Key('tp1'),
-                  initialTime: DateTime.now(),
-                  onTimeChanged: (dt) {
-                    print('date changed to : $dt');
+                height: 200,
+                child: FadeableTimePicker(
+                  initialTime: _timeSelection,
+                  maxTime: _initialTime,
+                  minTime: _initialTime.subtract(Duration(hours: _initialTime.hour, minutes: _initialTime.minute)),
+                  minutesInterval: 15,
+                  showSeconds: false,
+                  onTimeChanged: (DateTime dt) {
+                    print('time changed $dt');
                     setState(() {
                       _timeSelection = dt;
                     });
                   },
-                  itemSize: const Size(60, 40),
-                  amPmSpacerWidget: Container(),
-                  // unselectedItemColor: Color.fromARGB(255, 54, 54, 54),
-                  spacerTextStyle: const TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 25,
-                  ),
-                  selectedItemColor: Colors.lightGreen,
-                  selectedTextStyle: const TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 25,
-                  ),
-                  // spacerWidth: MediaQuery.of(context).size.width * (0.7/5),
                 ),
               ),
               Text(DateFormat.Hm().format(_timeSelection)),
 
-              
               // FadeableHorizontalDatePicker(
               //     startDate: DateTime.now().subtract(const Duration(days: 5)),
               //     endDate: DateTime.now().add(const Duration(days: 5)),

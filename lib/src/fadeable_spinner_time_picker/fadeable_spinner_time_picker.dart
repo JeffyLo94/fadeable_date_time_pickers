@@ -27,7 +27,7 @@ class FadeableSpinnerTimePicker extends StatefulWidget {
     this.isForceHour2Digits = false,
     this.isForce2Digits = true,
     this.itemAlignment = Alignment.center,
-    this.itemsToShow = 5,
+    this.itemsToShow = 4.5,
     this.selectedTextStyle,
     this.normalTextStyle,
     this.spacerTextStyle,
@@ -125,11 +125,15 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
   }
 
   int get _selectedMinuteIndex {
-    return (selectedMinute / widget.minutesInterval).round();
+    // print(
+    // 'selected minutes index = ($selectedMinute / ${widget.minutesInterval}) = ${(selectedMinute / widget.minutesInterval).round()}');
+    final calculatedIndex = (selectedMinute / widget.minutesInterval).round();
+    return calculatedIndex >= minuteItems.length ? 0 : calculatedIndex;
   }
 
   int get _selectedSecondIndex {
-    return (selectedMinute / widget.minutesInterval).round();
+    final calculatedIndex = (selectedSecond / widget.secondsInterval).round();
+    return calculatedIndex >= secondItems.length ? 0 : calculatedIndex;
   }
 
   void _setSelected(
