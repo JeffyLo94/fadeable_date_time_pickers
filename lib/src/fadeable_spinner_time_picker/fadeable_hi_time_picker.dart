@@ -451,15 +451,10 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
                 selectedHour = possibleHourChange.hour;
                 hourCtrl.jumpToPage(selectedHour);
               }
-            } else {
-              // current hour is in AM range
             }
           } else if (selectedAmPm == 1) {
             // is now pm
-            if (selectedHour >= 12) {
-              // current hour is in PM range
-
-            } else {
+            if (selectedHour < 12) {
               // current hour is in AM range -> should be PM range
               final DateTime possibleHourChange = DateTime(
                 widget.initialTime.year,
@@ -482,6 +477,7 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
             }
           } else {
             // invalid am/pm index
+            assert(selectedAmPm >= 0 && selectedAmPm <= 1);
           }
 
           amPmItems = _generateAmPmItems(selectedIndex: selectedAmPm);
