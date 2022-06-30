@@ -5,3 +5,4 @@ export 'src/fadeable_horizontal_date_picker/date_item_models.dart' show StateCol
 export 'src/fadeable_horizontal_date_picker/date_item_widget.dart' show DateItemWidget;
 export 'src/fadeable_spinner_time_picker/fadeable_spinner_time_picker.dart' show FadeableSpinnerTimePicker;
 export 'src/fadeable_spinner_time_picker/fadeable_hi_time_picker.dart' show FadeableTimePicker;
+export 'src/utils/date_time_picker_controller.dart' show DateTimePickerController;

@@ -35,11 +35,25 @@ class _MyHomePageState extends State<MyHomePage> {
   DateTime _dateSelection2 = DateTime.now();
   final int _maxDayRange = 5;
 
-  // DateTime _initialTime = DateTime.now();
-  // DateTime _timeSelection = DateTime.now();
-    DateTime _initialTime = DateTime(2022, 6, 29, 13, 35);
-    DateTime _timeSelection = DateTime(2022, 6, 29, 13, 35);
+  DateTime _initialTime = DateTime.now();
+  DateTime _timeSelection = DateTime.now();
+  // DateTime _initialTime = DateTime(2022, 6, 29, 13, 35);
+  // DateTime _timeSelection = DateTime(2022, 6, 29, 13, 35);
+  DateTimePickerController dtController =
+      DateTimePickerController(value: DateTime(2022, 6, 29, 13, 35));
 
+  @override
+  void initState() {
+    dtController = DateTimePickerController(
+        value: DateTime(
+            _dateSelection2.year,
+            _dateSelection2.month,
+            _dateSelection2.day,
+            _timeSelection.hour,
+            _timeSelection.minute,
+            _timeSelection.second));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,14 +85,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 20,
               ),
 
-              /// 5 DAYS BEFORE & AFTER
-              const Text('picker w/ 15 days before and after'),
+              /// 5 DAYS BEFORE
+              Text('picker w/ $_maxDayRange days before'),
               FadeableHorizontalDatePicker(
                 key: const Key('dp1'),
                 startDate:
-                    DateTime.now().subtract(Duration(days: _maxDayRange)),
-                endDate: DateTime.now().add(Duration(days: _maxDayRange)),
-                initialSelectedDate: DateTime.now(),
+                    _initialTime.subtract(Duration(days: _maxDayRange, hours: _initialTime.hour, minutes: _initialTime.minute, seconds: _initialTime.second)),
+                endDate: _initialTime,
+                initialSelectedDate: _initialTime,
                 dateItemTextColor: const StateColor(
                   normalColor: Colors.black,
                   disabledColor: Color.fromRGBO(142, 142, 142, 0.1),
@@ -114,6 +128,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 onDateSelected: (selectedDate) {
                   setState(() {
                     _dateSelection2 = selectedDate;
+                    var updatedDate = DateTime(
+                      selectedDate.year,
+                      selectedDate.month,
+                      selectedDate.day,
+                      _timeSelection.hour,
+                      _timeSelection.minute,
+                      _timeSelection.second,
+                    );
+                    dtController.currentDate = updatedDate;
                   });
                 },
               ),
@@ -158,8 +181,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 200,
                 child: FadeableTimePicker(
                   initialTime: _timeSelection,
+                  dtController: dtController,
                   maxTime: _initialTime,
-                  minTime: _initialTime.subtract(Duration(hours: _initialTime.hour, minutes: _initialTime.minute)),
+                  minTime: _initialTime.subtract(Duration(days: _maxDayRange, hours: _initialTime.hour, minutes: _initialTime.minute, seconds: _initialTime.second)),
                   minutesInterval: 15,
                   showSeconds: false,
                   onTimeChanged: (DateTime dt) {
@@ -170,7 +194,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
               ),
-              Text(DateFormat.Hm().format(_timeSelection)),
+              Text(DateFormat.yMMMd().add_jms().format(_timeSelection)),
 
               // FadeableHorizontalDatePicker(
               //     startDate: DateTime.now().subtract(const Duration(days: 5)),

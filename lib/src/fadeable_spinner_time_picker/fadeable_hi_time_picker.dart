@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:fadeable_date_time_pickers/src/utils/date_time_picker_controller.dart';
 import 'package:fadeable_date_time_pickers/src/utils/time_utils.dart';
 // import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +12,11 @@ enum _TimeSpinnerType {
 }
 
 class FadeableTimePicker extends StatefulWidget {
-  const FadeableTimePicker({
+  FadeableTimePicker({
     Key? key,
     required this.initialTime,
     required this.onTimeChanged,
+    DateTimePickerController? dtController,
     this.maxTime,
     this.minTime,
     this.is24HourMode = false,
@@ -40,7 +42,11 @@ class FadeableTimePicker extends StatefulWidget {
     this.disabledItemColor = const Color(0xFFE0E0E0),
     this.enableDistanceFade = true,
     this.maximumFadeItems = 3,
-  }) : super(key: key);
+  })  : controller =
+            dtController ?? DateTimePickerController(value: initialTime),
+        super(key: key);
+
+  final DateTimePickerController controller;
 
   /// Required initial time picker shows
   final DateTime initialTime;
@@ -121,6 +127,11 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
   void initState() {
     super.initState();
 
+    hourCtrl = CarouselController();
+    minuteCtrl = CarouselController();
+    secondCtrl = CarouselController();
+    amPmCtrl = CarouselController();
+
     time = widget.initialTime.roundNearestMinute(Duration(
         minutes: widget.minutesInterval, seconds: widget.secondsInterval));
     print('time is: $time');
@@ -135,6 +146,47 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
     _setSelected(
         type: _TimeSpinnerType.seconds, selectedIndex: _selectedSecondIndex);
     _setSelected(type: _TimeSpinnerType.ampm, selectedIndex: selectedAmPm);
+
+    widget.controller.updateDateTime = _setDateTime;
+  }
+
+  @override
+  void dispose() {
+    widget.controller.dispose();
+    super.dispose();
+  }
+
+  _setDateTime() {
+    if (mounted) {
+      print(
+          '-------------------------- UPDATING DATE TIME -------------------------');
+      setState(() {
+        time = widget.controller.value.roundNearestMinute(Duration(
+            minutes: widget.minutesInterval, seconds: widget.secondsInterval));
+        if (_isInvalidTime(time)) {
+          time = (widget.minTime?.isAfter(time) ?? false)
+              ? widget.minTime!
+                  .roundNearestMinute(Duration(minutes: widget.minutesInterval))
+              : (widget.maxTime?.isBefore(time) ?? false)
+                  ? widget.maxTime!.roundNearestMinute(
+                      Duration(minutes: widget.minutesInterval))
+                  : time;
+        }
+        selectedHour = time.hour;
+        selectedMinute = time.minute;
+        selectedSecond = time.second;
+        selectedAmPm = time.hour >= 12 ? 1 : 0;
+      });
+
+      _setSelected(type: _TimeSpinnerType.hours, selectedIndex: selectedHour);
+      _setSelected(
+          type: _TimeSpinnerType.minutes, selectedIndex: _selectedMinuteIndex);
+      _setSelected(
+          type: _TimeSpinnerType.seconds, selectedIndex: _selectedSecondIndex);
+      _setSelected(type: _TimeSpinnerType.ampm, selectedIndex: selectedAmPm);
+
+      widget.onTimeChanged(time);
+    }
   }
 
   void _initTime() {
@@ -207,9 +259,9 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
           selectedHour = selectedIndex;
 
           final DateTime selectedTime = DateTime(
-            widget.initialTime.year,
-            widget.initialTime.month,
-            widget.initialTime.day,
+            widget.controller.value.year,
+            widget.controller.value.month,
+            widget.controller.value.day,
             selectedHour,
             selectedMinute,
             selectedSecond,
@@ -289,9 +341,9 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
           selectedMinute = selectedIndex * widget.minutesInterval;
 
           final DateTime selectedTime = DateTime(
-            widget.initialTime.year,
-            widget.initialTime.month,
-            widget.initialTime.day,
+            widget.controller.value.year,
+            widget.controller.value.month,
+            widget.controller.value.day,
             selectedHour,
             selectedMinute,
             selectedSecond,
@@ -364,9 +416,9 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
           selectedSecond = selectedIndex * widget.secondsInterval;
 
           final DateTime selectedTime = DateTime(
-            widget.initialTime.year,
-            widget.initialTime.month,
-            widget.initialTime.day,
+            widget.controller.value.year,
+            widget.controller.value.month,
+            widget.controller.value.day,
             selectedHour,
             selectedMinute,
             selectedSecond,
@@ -434,9 +486,9 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
             if (selectedHour >= 12) {
               // current hour is in PM range -> should be AM range
               final DateTime possibleHourChange = DateTime(
-                widget.initialTime.year,
-                widget.initialTime.month,
-                widget.initialTime.day,
+                widget.controller.value.year,
+                widget.controller.value.month,
+                widget.controller.value.day,
                 selectedHour - 12,
                 selectedMinute,
                 selectedSecond,
@@ -457,9 +509,9 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
             if (selectedHour < 12) {
               // current hour is in AM range -> should be PM range
               final DateTime possibleHourChange = DateTime(
-                widget.initialTime.year,
-                widget.initialTime.month,
-                widget.initialTime.day,
+                widget.controller.value.year,
+                widget.controller.value.month,
+                widget.controller.value.day,
                 selectedHour + 12,
                 selectedMinute,
                 selectedSecond,
@@ -486,11 +538,12 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
     });
   }
 
-  bool isIndexInvalidTime({required _TimeSpinnerType type, required int index}) {
+  bool isIndexInvalidTime(
+      {required _TimeSpinnerType type, required int index}) {
     final DateTime selectedTime = DateTime(
-      widget.initialTime.year,
-      widget.initialTime.month,
-      widget.initialTime.day,
+      widget.controller.value.year,
+      widget.controller.value.month,
+      widget.controller.value.day,
       type == _TimeSpinnerType.hours ? index : selectedHour,
       type == _TimeSpinnerType.minutes
           ? index * widget.minutesInterval
@@ -602,18 +655,18 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
       // check if pm/am is invalid
       var isDisabled = selectedHour < 12
           ? (widget.maxTime?.isBefore(DateTime(
-                widget.initialTime.year,
-                widget.initialTime.month,
-                widget.initialTime.day,
+                widget.controller.value.year,
+                widget.controller.value.month,
+                widget.controller.value.day,
                 selectedHour + 12,
                 0,
                 0,
               )) ??
               false)
           : (widget.minTime?.isAfter(DateTime(
-                widget.initialTime.year,
-                widget.initialTime.month,
-                widget.initialTime.day,
+                widget.controller.value.year,
+                widget.controller.value.month,
+                widget.controller.value.day,
                 selectedHour - 12,
                 0,
                 0,
@@ -621,7 +674,7 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
               false);
 
       print(
-          'isDisabled ${widget.maxTime} < ${DateTime(widget.initialTime.year, widget.initialTime.month, widget.initialTime.day, 12, 0, 0)} = $isDisabled');
+          'isDisabled ${widget.maxTime} < ${DateTime(widget.controller.value.year, widget.controller.value.month, widget.controller.value.day, 12, 0, 0)} = $isDisabled');
       isDisabled ? print('pm is disabled') : print('pm not disabled');
 
       widgets.add(GestureDetector(
@@ -713,9 +766,9 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
     // print(opacity);
 
     final DateTime selectedTime = DateTime(
-      widget.initialTime.year,
-      widget.initialTime.month,
-      widget.initialTime.day,
+      widget.controller.value.year,
+      widget.controller.value.month,
+      widget.controller.value.day,
       type == _TimeSpinnerType.hours ? index : selectedHour,
       type == _TimeSpinnerType.minutes
           ? index * widget.minutesInterval
@@ -728,8 +781,8 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
     final bool isInvalidTime = _isInvalidTime(selectedTime);
     // final bool isInvalidTime = isIndexValidTime(index: index, type: type);
 
-    if (isInvalidTime && type != _TimeSpinnerType.seconds)
-      print('time ${type} - $value - $selectedTime at $index is invalid');
+    // if (isInvalidTime && type != _TimeSpinnerType.seconds)
+    //   print('time ${type} - $value - $selectedTime at $index is invalid');
 
     return GestureDetector(
       onTap: () {
