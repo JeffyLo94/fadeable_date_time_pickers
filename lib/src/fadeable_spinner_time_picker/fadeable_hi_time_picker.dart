@@ -171,7 +171,16 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
                   ? widget.maxTime!.roundNearestMinute(
                       Duration(minutes: widget.minutesInterval))
                   : time;
+          if (hourCtrl.ready) {
+            hourCtrl.jumpToPage(time.hour);
+          }
+          if (minuteCtrl.ready) {
+            minuteCtrl.jumpToPage(time.minute ~/ widget.minutesInterval);
+          }
         }
+
+        print(
+            'controller set time to: ${time.month}/${time.day}/${time.year} ${time.hour}:${time.minute}:${time.second}');
         selectedHour = time.hour;
         selectedMinute = time.minute;
         selectedSecond = time.second;
@@ -853,7 +862,7 @@ class _FadeableTimePickerState extends State<FadeableTimePicker> {
           enableInfiniteScroll: spinnerType != _TimeSpinnerType.ampm,
           viewportFraction: 1 / (widget.itemsToShow),
           onPageChanged: (index, reason) {
-            print('page changed - $index, $reason');
+            print('$spinnerType page changed - $index, $reason');
             _setSelected(type: spinnerType, selectedIndex: index);
             _updateDateTime(spinnerType, index);
           },

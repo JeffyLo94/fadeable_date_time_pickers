@@ -40,7 +40,7 @@ class FadeableHorizontalDatePicker extends StatefulWidget {
     this.weekDayTextStyle = const TextStyle(fontSize: 12),
     this.enableDistanceFade = true,
     this.maximumFadeDays,
-    this.daysInViewport = 7,
+    this.daysInViewport = 6.5,
     this.hideDisabled = true,
   }) : super(key: key);
 
@@ -242,7 +242,7 @@ class _FadeableHorizontalDatePickerState
   }
 
   double _getDayDifference(DateTime first, DateTime second) {
-    return (first.day - second.day).abs().toDouble();
+    return second.difference(first).inDays.abs().toDouble();
   }
 
   DateItemState _getDateTimeState(DateTime dateTime) {
