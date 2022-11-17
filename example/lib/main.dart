@@ -35,7 +35,10 @@ class _MyHomePageState extends State<MyHomePage> {
   DateTime _dateSelection2 = DateTime.now();
   final int _maxDayRange = 5;
 
-  DateTime _initialTime = DateTime.now();
+  final DateTime _initialTime = DateTime.now();
+  // DateTime createdOn = DateTime(2022, 6, 30, 10, 30, 10);
+  DateTime createdOn = DateTime.now();
+
   DateTime _timeSelection = DateTime.now();
   // DateTime _initialTime = DateTime(2022, 6, 29, 13, 35);
   // DateTime _timeSelection = DateTime(2022, 6, 29, 13, 35);
@@ -89,10 +92,14 @@ class _MyHomePageState extends State<MyHomePage> {
               Text('picker w/ $_maxDayRange days before'),
               FadeableHorizontalDatePicker(
                 key: const Key('dp1'),
-                startDate:
-                    _initialTime.subtract(Duration(days: _maxDayRange, hours: _initialTime.hour, minutes: _initialTime.minute, seconds: _initialTime.second)),
-                endDate: _initialTime,
-                initialSelectedDate: _initialTime,
+                startDate: createdOn.subtract(Duration(
+                    days: _maxDayRange,
+                    hours: createdOn.hour,
+                    minutes: createdOn.minute,
+                    seconds: createdOn.second)),
+                endDate: DateTime.now(),
+                initialSelectedDate: _initialTime.roundNearestMinute(
+                    const Duration(minutes: 15), true),
                 dateItemTextColor: const StateColor(
                   normalColor: Colors.black,
                   disabledColor: Color.fromRGBO(142, 142, 142, 0.1),
@@ -179,11 +186,16 @@ class _MyHomePageState extends State<MyHomePage> {
               Container(
                 width: MediaQuery.of(context).size.width * 0.7,
                 height: 200,
-                child: FadeableTimePicker(
+                child: FadeableSpinnerTimePicker(
                   initialTime: _timeSelection,
                   dtController: dtController,
-                  maxTime: _initialTime,
-                  minTime: _initialTime.subtract(Duration(days: _maxDayRange, hours: _initialTime.hour, minutes: _initialTime.minute, seconds: _initialTime.second)),
+                  maxTime: _initialTime.roundNearestMinute(
+                      const Duration(minutes: 15), true),
+                  // minTime: _initialTime.subtract(Duration(
+                  //     days: _maxDayRange,
+                  //     hours: _initialTime.hour,
+                  //     minutes: _initialTime.minute,
+                  //     seconds: _initialTime.second)),
                   minutesInterval: 15,
                   showSeconds: false,
                   onTimeChanged: (DateTime dt) {
