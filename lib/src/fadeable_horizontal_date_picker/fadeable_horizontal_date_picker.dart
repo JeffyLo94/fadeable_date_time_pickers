@@ -128,7 +128,9 @@ class _FadeableHorizontalDatePickerState
   double _padding = 0.0;
 
   final CarouselController _carouselController = CarouselController();
-  DateTime selectedDate = DateTime.now();
+  DateTime selectedDate = DateTime.now().toUtc();
+  DateTime startDate = DateTime.now().toUtc();
+  DateTime endDate = DateTime.now().toUtc();
   int selectedIndex = 0;
 
   List<DateTime> possibleDates = [];
@@ -141,12 +143,24 @@ class _FadeableHorizontalDatePickerState
       widget.initialSelectedDate,
     );
 
-    var numDates = widget.endDate.difference(widget.startDate).inDays;
+    if(!widget.startDate.isUtc){
+      startDate = widget.startDate.toUtc();
+    } else {
+      startDate = widget.startDate;
+    }
+    if(!widget.endDate.isUtc){
+      endDate = widget.endDate.toUtc();
+    } else {
+      endDate = widget.endDate;
+    }
+
+    var numDates = endDate.difference(startDate).inDays;
+    // var numDates = endDate.difference(startDate).inDays;
     // print('Total Possible days: $numDates');
     setState(() {
       for (int i = 0; i <= numDates; i++) {
-        possibleDates.add(widget.startDate.add(Duration(days: i)));
-        if (_isSelectedDate(widget.startDate.add(Duration(days: i)))) {
+        possibleDates.add(startDate.add(Duration(days: i)));
+        if (_isSelectedDate(startDate.add(Duration(days: i)))) {
           selectedIndex = i;
           // print('Selected Index: $selectedIndex');
         }
@@ -160,7 +174,7 @@ class _FadeableHorizontalDatePickerState
   @override
   Widget build(BuildContext context) {
     final int totalDays =
-        widget.endDate.difference(widget.startDate).inDays.abs();
+        endDate.difference(startDate).inDays.abs();
     double fadeScaleValue = 0;
     if (widget.enableDistanceFade) {
       if (widget.maximumFadeDays != null) {
@@ -281,7 +295,7 @@ class _FadeableHorizontalDatePickerState
   }
 
   bool _isWithinRange(DateTime dateTime) {
-    return dateTime.compareTo(widget.startDate) >= 0 &&
-        dateTime.compareTo(widget.endDate) <= 0;
+    return dateTime.compareTo(startDate) >= 0 &&
+        dateTime.compareTo(endDate) <= 0;
   }
 }
