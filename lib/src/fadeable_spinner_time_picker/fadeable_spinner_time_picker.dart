@@ -114,27 +114,28 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
   int selectedSecond = 0;
   int selectedAmPm = -1;
 
-  DateTime time = DateTime.now();
+  DateTime time = DateTime.now().toUtc();
 
   List<Widget> hourItems = [];
   List<Widget> minuteItems = [];
   List<Widget> secondItems = [];
   List<Widget> amPmItems = [];
 
-  CarouselController hourCtrl = CarouselController();
-  CarouselController minuteCtrl = CarouselController();
-  CarouselController secondCtrl = CarouselController();
-  CarouselController amPmCtrl = CarouselController();
+  CarouselSliderController hourCtrl = CarouselSliderController();
+  CarouselSliderController minuteCtrl = CarouselSliderController();
+  CarouselSliderController secondCtrl = CarouselSliderController();
+  CarouselSliderController amPmCtrl = CarouselSliderController();
 
   @override
   void initState() {
     super.initState();
 
-    hourCtrl = CarouselController();
-    minuteCtrl = CarouselController();
-    secondCtrl = CarouselController();
-    amPmCtrl = CarouselController();
+    hourCtrl = CarouselSliderController();
+    minuteCtrl = CarouselSliderController();
+    secondCtrl = CarouselSliderController();
+    amPmCtrl = CarouselSliderController();
 
+    print('initial time isUtc: ${widget.initialTime.isUtc}');
     time = widget.initialTime.roundNearestMinute(Duration(
         minutes: widget.minutesInterval, seconds: widget.secondsInterval));
     // print('time is: $time');
@@ -161,8 +162,6 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
 
   _setDateTime() {
     if (mounted) {
-    //   print(
-    //       '-------------------------- UPDATING DATE TIME -------------------------');
       setState(() {
         time = widget.controller.value.roundNearestMinute(Duration(
             minutes: widget.minutesInterval, seconds: widget.secondsInterval));
@@ -541,6 +540,7 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
           if (selectedAmPm == 0) {
             // is now am
             if (selectedHour >= 12) {
+              // print('Changing From PM to AM -  hour is $selectedHour');
               // current hour is in PM range -> should be AM range
               final DateTime possibleHourChange = DateTime(
                 widget.controller.value.year,
@@ -616,7 +616,7 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
   void _setSurrounding(
     int selectedIndex,
     List<Widget> items,
-    CarouselController ctrl,
+    CarouselSliderController ctrl,
     _TimeSpinnerType type,
   ) {
     var maxIndexesAboveBelow = (widget.itemsToShow / 2.0).floor();
@@ -763,7 +763,7 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
     required int max,
     required int interval,
     required _TimeSpinnerType type,
-    required CarouselController ctrl,
+    required CarouselSliderController ctrl,
   }) {
     List<Widget> widgets = [];
     for (int i = 0; i < max; i++) {
@@ -792,7 +792,7 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
     int value, {
     bool isHours = false,
     bool isSelected = false,
-    required CarouselController ctrl,
+    required CarouselSliderController ctrl,
     required int index,
     required _TimeSpinnerType type,
     // double opacity = 1,
@@ -876,7 +876,7 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
     required _TimeSpinnerType spinnerType,
   }) {
     List<Widget> items;
-    CarouselController ctrl;
+    CarouselSliderController ctrl;
 
     switch (spinnerType) {
       case _TimeSpinnerType.hours:
@@ -898,7 +898,7 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
     }
 
     // print('initial page = $selectedIndex');
-    return Container(
+    return SizedBox(
       height: widget.itemsToShow * widget.itemSize.height,
       width: widget.itemSize.width,
       child: CarouselSlider(
@@ -962,28 +962,35 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
   }
 
   void _updateDateTime(_TimeSpinnerType type, int index) {
+    // print('Updating DT for spinner $type and at index $index');
     switch (type) {
       case _TimeSpinnerType.hours:
         int value = index;
+        // print('current hour is $value - selectedAmPm is $selectedAmPm');
         if (!widget.is24HourMode) {
           // print('hour changed, is ampm: ${selectedAmPm == 0 ? 'am' : 'pm'}');
-          if (selectedAmPm == 0) {
-            // is am -> hour should be between 0 and 11
-            value = value % 12;
-          } else {
-            // is pm -> hour value should be between 12 and 23
-            if (value < 12) {
-              value = value + 12;
-            }
-          }
+          // if (selectedAmPm == 0) {
+          //   // is am -> hour should be between 0 and 11
+          //   value = value % 12;
+          // } else {
+          //   // is pm -> hour value should be between 12 and 23
+          //   if (value < 12) {
+          //     value = value + 12;
+          //   }
+          // }
         }
+        // print('current hour NOW is $value');
+
         var potentialNewTime = DateTime.utc(
             time.year, time.month, time.day, value, time.minute, time.second);
-        if (potentialNewTime.isBefore(widget.maxTime!)) {
+        if (widget.maxTime != null &&
+            potentialNewTime.isBefore(widget.maxTime!)) {
           //print('TIME BUMP VALID, changing time to $potentialNewTime');
           time = potentialNewTime;
         } else {
           // DO NOTHING - timebump is invalid
+          time = potentialNewTime;
+
           //print('TIME BUMP INVALID, DOING NOTHING');
         }
         // time = DateTime.utc(

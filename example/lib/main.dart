@@ -90,13 +90,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
               /// 5 DAYS BEFORE
               Text('picker w/ $_maxDayRange days before'),
+              Text('Start Date:'),
+              Text(
+                  '${DateTime(createdOn.year, createdOn.month, createdOn.day - _maxDayRange)}'),
+              Text('End Date'),
+              Text('${DateTime(
+                createdOn.year,
+                createdOn.month,
+                createdOn.day,
+              )}'),
+              // Text('Days Before:'),
+              // Text(' ${createdOn.subtract(Duration(
+              //       days: _maxDayRange,
+              //       hours: createdOn.hour,
+              //       minutes: createdOn.minute,
+              //       seconds: createdOn.second,
+              //       milliseconds: createdOn.millisecond,
+              //       microseconds: createdOn.microsecond,
+              //     )).toLocal()}'),
               FadeableHorizontalDatePicker(
                 key: const Key('dp1'),
-                startDate: createdOn.subtract(Duration(
-                    days: _maxDayRange,
-                    hours: createdOn.hour,
-                    minutes: createdOn.minute,
-                    seconds: createdOn.second)),
+                // startDate: createdOn.subtract(Duration(
+                //   days: _maxDayRange,
+                //   hours: createdOn.hour,
+                //   minutes: createdOn.minute,
+                //   seconds: createdOn.second,
+                //   milliseconds: createdOn.millisecond,
+                //   microseconds: createdOn.microsecond,
+                // )),
+                startDate: DateTime(createdOn.year, createdOn.month,
+                    createdOn.day - _maxDayRange),
                 endDate: DateTime.now(),
                 initialSelectedDate: _initialTime.roundNearestMinute(
                     const Duration(minutes: 15), true),
@@ -130,15 +153,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
                 enableDistanceFade: true,
                 maximumFadeDays: 3,
-                widgetWidth: MediaQuery.of(context).size.width * 0.7,
-                daysInViewport: 15,
+                widgetWidth: MediaQuery.of(context).size.width,
+                daysInViewport: 6,
                 onDateSelected: (selectedDate) {
                   setState(() {
                     _dateSelection2 = selectedDate;
                     var updatedDate = DateTime(
-                      selectedDate.year,
-                      selectedDate.month,
-                      selectedDate.day,
+                      selectedDate.toLocal().year,
+                      selectedDate.toLocal().month,
+                      selectedDate.toLocal().day,
                       _timeSelection.hour,
                       _timeSelection.minute,
                       _timeSelection.second,
@@ -147,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 },
               ),
-              Text(DateFormat.yMMMd().format(_dateSelection2)),
+              Text(DateFormat.yMMMd().format(_dateSelection2.toLocal())),
               const SizedBox(
                 height: 40,
               ),
@@ -183,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
               //     // spacerWidth: MediaQuery.of(context).size.width * (0.7/5),
               //   ),
               // ),
-              Container(
+              SizedBox(
                 width: MediaQuery.of(context).size.width * 0.7,
                 height: 200,
                 child: FadeableSpinnerTimePicker(
@@ -200,6 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   showSeconds: false,
                   onTimeChanged: (DateTime dt) {
                     print('time changed $dt');
+                    print('time isUtc: ${dt.isUtc}');
                     setState(() {
                       _timeSelection = dt;
                     });

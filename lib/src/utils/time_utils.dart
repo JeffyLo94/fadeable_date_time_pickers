@@ -5,7 +5,7 @@ extension FDateTimeExtensions on DateTime {
 
     //print('Time Now -  ${this}');
     //print(
-        // 'interval in Minutes: ${interval.inMinutes} and in Seconds: ${interval.inSeconds}');
+    // 'interval in Minutes: ${interval.inMinutes} and in Seconds: ${interval.inSeconds}');
     int minuteModValue;
     if (interval.inMinutes == 0) {
       minuteModValue = 0;
@@ -33,7 +33,7 @@ extension FDateTimeExtensions on DateTime {
     if (alignment == Duration.zero) return dt;
     //print('alignment duration: $alignment');
     //print(
-        // 'correction seconds alignment ${alignment.inMinutes > 0 ? alignment.inSeconds - 60 < 60 ? dt.second : alignment.inSeconds > 0 ? dt.second % alignment.inSeconds : 0 : alignment.inSeconds > 0 ? dt.second % alignment.inSeconds : 0}');
+    // 'correction seconds alignment ${alignment.inMinutes > 0 ? alignment.inSeconds - 60 < 60 ? dt.second : alignment.inSeconds > 0 ? dt.second % alignment.inSeconds : 0 : alignment.inSeconds > 0 ? dt.second % alignment.inSeconds : 0}');
     final correction = Duration(
         days: 0,
         hours: alignment.inDays > 0
@@ -66,5 +66,21 @@ extension FDateTimeExtensions on DateTime {
     final corrected = dt.subtract(correction);
     final result = roundUp ? corrected.add(alignment) : corrected;
     return result;
+  }
+
+  int daysBetween(DateTime other) {
+    final from = DateTime(year, month, day);
+    final to = DateTime(other.year, other.month, other.day);
+    return (to.difference(from).inHours / 24).round();
+  }
+
+  DateTime addDate({int years = 0, int months = 0, int days = 0}) {
+    if (years == 0 && months == 0 && days == 0) return this;
+
+    return isUtc
+        ? DateTime.utc(year + years, month + months, day + days, hour, minute,
+            second, millisecond, microsecond)
+        : DateTime(year + years, month + months, day + days, hour, minute,
+            second, millisecond, microsecond);
   }
 }

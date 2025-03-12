@@ -17,7 +17,7 @@ void main() {
       initialSelectedDate: DateTime.now(),
       widgetWidth: 60,
       onDateSelected: (selectedDateTime) {
-        print(selectedDateTime);
+        // print(selectedDateTime);
       },
     );
   });
@@ -26,7 +26,7 @@ void main() {
     final FadeableSpinnerTimePicker timePicker = FadeableSpinnerTimePicker(
       initialTime: DateTime.now(),
       onTimeChanged: (selectedDateTime){
-        print('${selectedDateTime.hour}:${selectedDateTime.minute}');
+        // print('${selectedDateTime.hour}:${selectedDateTime.minute}');
       },
     );
   });

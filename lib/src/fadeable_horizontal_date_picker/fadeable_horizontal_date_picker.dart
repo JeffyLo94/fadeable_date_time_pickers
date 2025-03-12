@@ -4,6 +4,7 @@
 // export 'date_item_widget.dart';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:fadeable_date_time_pickers/src/utils/time_utils.dart';
 
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -119,15 +120,16 @@ class FadeableHorizontalDatePicker extends StatefulWidget {
   final List<DateItem> dateItemComponentList;
 
   @override
-  _FadeableHorizontalDatePickerState createState() =>
-      _FadeableHorizontalDatePickerState();
+  FadeableHorizontalDatePickerState createState() =>
+      FadeableHorizontalDatePickerState();
 }
 
-class _FadeableHorizontalDatePickerState
+class FadeableHorizontalDatePickerState
     extends State<FadeableHorizontalDatePicker> {
   double _padding = 0.0;
 
-  final CarouselController _carouselController = CarouselController();
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
   DateTime selectedDate = DateTime.now().toUtc();
   DateTime startDate = DateTime.now().toUtc();
   DateTime endDate = DateTime.now().toUtc();
@@ -143,28 +145,46 @@ class _FadeableHorizontalDatePickerState
       widget.initialSelectedDate,
     );
 
-    if(!widget.startDate.isUtc){
-      startDate = widget.startDate.toUtc();
-    } else {
-      startDate = widget.startDate;
-    }
-    if(!widget.endDate.isUtc){
-      endDate = widget.endDate.toUtc();
-    } else {
-      endDate = widget.endDate;
-    }
+    // Converting all start/end dates to 2am Locale
+    startDate = DateTime(
+        widget.startDate.year, widget.startDate.month, widget.startDate.day, 2);
+    endDate = DateTime(
+        widget.endDate.year, widget.endDate.month, widget.endDate.day, 2);
 
-    var numDates = endDate.difference(startDate).inDays;
+    if (!startDate.isUtc) {
+      // print('START DATE IS NOT UTC)');
+      startDate = startDate.toUtc();
+    } else {
+      startDate = startDate;
+    }
+    if (!endDate.isUtc) {
+      endDate = endDate.toUtc();
+    } else {
+      endDate = endDate;
+    }
+    // print('start date: $startDate');
+    // print('end date: $endDate');
+    var numDates = endDate.daysBetween(startDate).abs();
     // var numDates = endDate.difference(startDate).inDays;
     // print('Total Possible days: $numDates');
     setState(() {
       for (int i = 0; i <= numDates; i++) {
-        possibleDates.add(startDate.add(Duration(days: i)));
-        if (_isSelectedDate(startDate.add(Duration(days: i)))) {
+        if (i != numDates) {
+          // print(
+          //     'Adding Possible Dates: ${startDate.addDate(days: i)}} is utc? ${startDate.addDate(days: i).isUtc}');
+          possibleDates.add(startDate.addDate(days: i));
+        } else {
+          //  print(
+          //     'Adding End Date: ${endDate}');
+          possibleDates.add(endDate);
+        }
+
+        if (_isSelectedDate(startDate.addDate(days: i))) {
           selectedIndex = i;
           // print('Selected Index: $selectedIndex');
         }
       }
+      // possibleDates.forEach(print);
     });
 
     super.initState();
@@ -173,8 +193,7 @@ class _FadeableHorizontalDatePickerState
 
   @override
   Widget build(BuildContext context) {
-    final int totalDays =
-        endDate.difference(startDate).inDays.abs();
+    final int totalDays = endDate.difference(startDate).inDays.abs();
     double fadeScaleValue = 0;
     if (widget.enableDistanceFade) {
       if (widget.maximumFadeDays != null) {
@@ -187,6 +206,8 @@ class _FadeableHorizontalDatePickerState
     }
 
     // print('viewport: 1/${widget.daysInViewport}');
+    // print('possible dates: ${possibleDates.length}');
+    // print('fadeScaleValue: $fadeScaleValue');
     return SizedBox(
       height: widget.widgetHeight,
       width: widget.widgetWidth,
@@ -214,9 +235,12 @@ class _FadeableHorizontalDatePickerState
           var dateTime = possibleDates[index];
 
           double distanceFromSelected =
-              _getDayDifference(selectedDate, dateTime);
+              selectedDate.daysBetween(dateTime).abs().toDouble();
 
           DateItemState dateItemState = _getDateTimeState(dateTime);
+          // print('isDateTime in UTC? ${dateTime.isUtc}');
+          // print(
+          //     'UTC Date Time: $dateTime vs LOCAL Date Time: ${dateTime.toLocal()}');
 
           return GestureDetector(
             onTap: () {
@@ -227,13 +251,13 @@ class _FadeableHorizontalDatePickerState
                   selectedIndex = index;
                   _carouselController.jumpToPage(index);
                   distanceFromSelected =
-                      _getDayDifference(selectedDate, dateTime);
+                      selectedDate.daysBetween(dateTime).abs().toDouble();
                 });
               }
             },
             child: DateItemWidget(
               locale: widget.locale,
-              dateTime: dateTime,
+              dateTime: dateTime.toLocal(),
               padding: _padding,
               width: widget.dateItemContainerWidth,
               height: widget.widgetHeight,
@@ -255,9 +279,9 @@ class _FadeableHorizontalDatePickerState
     );
   }
 
-  double _getDayDifference(DateTime first, DateTime second) {
-    return second.difference(first).inDays.abs().toDouble();
-  }
+  // double _getDayDifference(DateTime first, DateTime second) {
+  //   return second.difference(first).inDays.abs().toDouble();
+  // }
 
   DateItemState _getDateTimeState(DateTime dateTime) {
     if (_isSelectedDate(dateTime)) {
@@ -272,9 +296,9 @@ class _FadeableHorizontalDatePickerState
   }
 
   bool _isSelectedDate(DateTime dateTime) {
-    return dateTime.year == selectedDate.year &&
-        dateTime.month == selectedDate.month &&
-        dateTime.day == selectedDate.day;
+    return dateTime.toUtc().year == selectedDate.toUtc().year &&
+        dateTime.toUtc().month == selectedDate.toUtc().month &&
+        dateTime.toUtc().day == selectedDate.toUtc().day;
   }
 
   void _init(
@@ -295,6 +319,10 @@ class _FadeableHorizontalDatePickerState
   }
 
   bool _isWithinRange(DateTime dateTime) {
+    // print('RANGE dateTime: $dateTime, startDate: $startDate, endDate: $endDate');
+    // print(
+    //     'RANGE: ${dateTime.compareTo(startDate)} >= 0 && ${dateTime.compareTo(endDate)} <= 0');
+
     return dateTime.compareTo(startDate) >= 0 &&
         dateTime.compareTo(endDate) <= 0;
   }
