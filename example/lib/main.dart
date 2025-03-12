@@ -222,8 +222,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   minutesInterval: 15,
                   showSeconds: false,
                   onTimeChanged: (DateTime dt) {
-                    print('time changed $dt');
-                    print('time isUtc: ${dt.isUtc}');
+                    // print('time changed $dt');
+                    // print('time isUtc: ${dt.isUtc}');
                     setState(() {
                       _timeSelection = dt;
                     });

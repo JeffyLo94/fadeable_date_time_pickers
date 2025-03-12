@@ -138,7 +138,7 @@ class FadeableHorizontalDatePickerState
   List<DateTime> possibleDates = [];
 
   @override
-  void initState() {
+void initState() {
     _init(
       widget.widgetWidth,
       widget.dateItemContainerWidth,
@@ -146,9 +146,9 @@ class FadeableHorizontalDatePickerState
     );
 
     // Converting all start/end dates to 2am Locale
-    startDate = DateTime(
+    startDate = DateTime.utc(
         widget.startDate.year, widget.startDate.month, widget.startDate.day, 2);
-    endDate = DateTime(
+    endDate = DateTime.utc(
         widget.endDate.year, widget.endDate.month, widget.endDate.day, 2);
 
     if (!startDate.isUtc) {
@@ -180,8 +180,12 @@ class FadeableHorizontalDatePickerState
         }
 
         if (_isSelectedDate(startDate.addDate(days: i))) {
+          // print('SELECTED DATE: ${startDate.addDate(days: i)}');
           selectedIndex = i;
           // print('Selected Index: $selectedIndex');
+        } else {
+        //   print('NOT SELECTED DATE: ${startDate.addDate(days: i)}, initialSelectedDate: ${DateTime.utc(widget.initialSelectedDate.year, widget.initialSelectedDate.month,
+        // widget.initialSelectedDate.day, 2)}');
         }
       }
       // possibleDates.forEach(print);
@@ -315,7 +319,8 @@ class FadeableHorizontalDatePickerState
     //calc padding(L+R)
     _padding = (widgetWidth - (maxRowChild * width)) / maxRowChild;
 
-    selectedDate = initialSelectedDate;
+    selectedDate = DateTime.utc(initialSelectedDate.year, initialSelectedDate.month,
+        initialSelectedDate.day, 2);
   }
 
   bool _isWithinRange(DateTime dateTime) {

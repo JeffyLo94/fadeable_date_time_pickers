@@ -135,7 +135,7 @@ class _FadeableSpinnerTimePickerState extends State<FadeableSpinnerTimePicker> {
     secondCtrl = CarouselSliderController();
     amPmCtrl = CarouselSliderController();
 
-    print('initial time isUtc: ${widget.initialTime.isUtc}');
+    // print('initial time isUtc: ${widget.initialTime.isUtc}');
     time = widget.initialTime.roundNearestMinute(Duration(
         minutes: widget.minutesInterval, seconds: widget.secondsInterval));
     // print('time is: $time');
