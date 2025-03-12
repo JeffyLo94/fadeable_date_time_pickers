@@ -1,16 +1,3 @@
-buildscript {
-    ext.kotlin_version = '1.6.10'
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
 allprojects {
     repositories {
         google()
@@ -18,7 +5,20 @@ allprojects {
     }
 }
 
+ext {
+  compileSdkVersion = 34
+  targetSdkVersion = 34
+  appCompatVersion = "1.7.0"
+}
+
 rootProject.buildDir = '../build'
+
+subprojects { 
+    afterEvaluate { 
+        android { compileSdkVersion 34 } 
+    } 
+}
+
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
@@ -26,6 +26,6 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-task clean(type: Delete) {
+tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
